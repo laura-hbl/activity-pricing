@@ -2,8 +2,9 @@ package unit;
 
 import com.activities.pricing.domain.entities.Activity;
 import com.activities.pricing.domain.entities.FreeSaleActivity;
+import com.activities.pricing.domain.entities.OnDemandActivity;
 import com.activities.pricing.domain.usecases.CalculateActivityPrice;
-import com.activities.pricing.domain.usecases.InvalidPricingRequest;
+import com.activities.pricing.domain.exception.InvalidPricingRequest;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
@@ -20,6 +21,11 @@ public class CalculatePriceTest {
     private final Activity freeSaleActivity = new FreeSaleActivity("111", "Museum",
             new HashSet<>(List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
                     DayOfWeek.FRIDAY)), 20, 10);
+
+    private final Activity onDemandActivity = new OnDemandActivity("222", "Excursion",
+            new HashSet<>(List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)),
+            10, 10);
+
 
     @Test
     public void shouldReturnCorrectPriceForFreeSaleActivityOnValidDay() {
@@ -40,11 +46,39 @@ public class CalculatePriceTest {
     }
 
     @Test
-    public void shouldThrowExceptionPriceForFreeSaleActivityForNonOpenDay() {
+    public void shouldThrowExceptionForFreeSaleActivityForNonOpenDay() {
 
         var exception = assertThrows(InvalidPricingRequest.class, () ->
                 calculateActivityPrice.calculateFreeSaleActivityPrice(freeSaleActivity, 2, 2, DayOfWeek.MONDAY));
 
         assertEquals(exception.getMessage(), "Activity not available on MONDAY");
     }
+
+    @Test
+    public void shouldReturnCorrectPriceForOnDemandActivityOnValidDay() {
+
+        double price = calculateActivityPrice.calculateOnDemandActivityPrice(onDemandActivity, 2, 2,
+                DayOfWeek.SATURDAY);
+
+        assertEquals(40.0, price);
+    }
+
+    @Test
+    public void shouldThrowExceptionForOnDemandActivityForNonOpenDay() {
+
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                calculateActivityPrice.calculateOnDemandActivityPrice(onDemandActivity, 2, 2, DayOfWeek.MONDAY));
+
+        assertEquals(exception.getMessage(), "Activity not available on MONDAY");
+    }
+
+    @Test
+    public void shouldThrowExceptionForOnDemandActivityWhenLimitExceeded() {
+
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                calculateActivityPrice.calculateOnDemandActivityPrice(onDemandActivity, 3, 2, DayOfWeek.SUNDAY));
+
+        assertEquals(exception.getMessage(), "Places are limit to 4");
+    }
+
 }

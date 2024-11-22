@@ -1,6 +1,7 @@
 package com.activities.pricing.domain.usecases;
 
 import com.activities.pricing.domain.entities.Activity;
+import com.activities.pricing.domain.exception.InvalidPricingRequest;
 
 import java.time.DayOfWeek;
 
@@ -25,5 +26,20 @@ public class CalculateActivityPrice {
         }
 
         return price;
+    }
+
+    public double calculateOnDemandActivityPrice(Activity activity, int adults, int children, DayOfWeek day) {
+
+        if (!activity.getOpenDays().contains(day)) {
+            throw new InvalidPricingRequest("Activity not available on %s".formatted(day));
+        }
+
+        int total = adults + children;
+
+        if (total > 4) {
+            throw new InvalidPricingRequest("Places are limit to 4");
+        }
+
+        return (adults * activity.getAdultPrice()) + (children * activity.getChildPrice());
     }
 }

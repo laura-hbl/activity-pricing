@@ -3,6 +3,7 @@ package unit;
 import com.activities.pricing.domain.entities.Activity;
 import com.activities.pricing.domain.entities.FreeSaleActivity;
 import com.activities.pricing.domain.usecases.CalculateActivityPrice;
+import com.activities.pricing.domain.usecases.InvalidPricingRequest;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
@@ -10,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CalculatePriceTest {
 
@@ -20,7 +22,7 @@ public class CalculatePriceTest {
                     DayOfWeek.FRIDAY)), 20, 10);
 
     @Test
-    public void shouldReturnCorrectPriceOnValidDay() {
+    public void shouldReturnCorrectPriceForFreeSaleActivityOnValidDay() {
 
         double price = calculateActivityPrice.calculateFreeSaleActivityPrice(freeSaleActivity, 2, 1,
                 DayOfWeek.MONDAY);
@@ -38,11 +40,11 @@ public class CalculatePriceTest {
     }
 
     @Test
-    public void shouldReturnUndefinedPriceForNonOpenDay() {
+    public void shouldThrowExceptionPriceForFreeSaleActivityForNonOpenDay() {
 
-        double price = calculateActivityPrice.calculateFreeSaleActivityPrice(freeSaleActivity, 2, 2,
-                DayOfWeek.SUNDAY);
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                calculateActivityPrice.calculateFreeSaleActivityPrice(freeSaleActivity, 2, 2, DayOfWeek.MONDAY));
 
-        assertEquals(-1, price);
+        assertEquals(exception.getMessage(), "Activity not available on MONDAY");
     }
 }

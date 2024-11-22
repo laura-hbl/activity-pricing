@@ -9,17 +9,21 @@ public class CalculateActivityPrice {
     public double calculateFreeSaleActivityPrice(Activity activity, int adults, int children, DayOfWeek day) {
 
         if(!activity.getOpenDays().contains(day)) {
-           return -1;
+            throw new InvalidPricingRequest("Activity not available on %s".formatted(day));
         }
 
         double price = activity.getAdultPrice() * adults;
-        for (int i = 1; i <= children; i++) {
-            if (i <= 2) {
-                price += activity.getChildPrice();
-            } else {
-                price += activity.getChildPrice() / 2;
-            }
+
+        if (children < 2) {
+            // If less than 2, then just child number * price
+            price += activity.getChildPrice() * children;
+        } else {
+            // If greater than 2, then 2 * price
+            price += activity.getChildPrice() * 2;
+            // And the rest of the children reduced rate of price / 2
+            price += (activity.getChildPrice() * (children - 2)) / 2;
         }
+
         return price;
     }
 }

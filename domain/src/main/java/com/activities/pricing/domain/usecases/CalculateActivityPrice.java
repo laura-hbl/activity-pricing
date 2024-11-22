@@ -9,9 +9,7 @@ public class CalculateActivityPrice {
 
     public double calculateFreeSaleActivityPrice(Activity activity, int adults, int children, DayOfWeek day) {
 
-        if(!activity.getOpenDays().contains(day)) {
-            throw new InvalidPricingRequest("Activity not available on %s".formatted(day));
-        }
+        checkActivityAvailability(activity, day);
 
         double price = activity.getAdultPrice() * adults;
 
@@ -30,9 +28,7 @@ public class CalculateActivityPrice {
 
     public double calculateOnDemandActivityPrice(Activity activity, int adults, int children, DayOfWeek day) {
 
-        if (!activity.getOpenDays().contains(day)) {
-            throw new InvalidPricingRequest("Activity not available on %s".formatted(day));
-        }
+        checkActivityAvailability(activity, day);
 
         int total = adults + children;
 
@@ -41,5 +37,12 @@ public class CalculateActivityPrice {
         }
 
         return (adults * activity.getAdultPrice()) + (children * activity.getChildPrice());
+    }
+
+    private void checkActivityAvailability(Activity activity, DayOfWeek day) {
+
+        if (!activity.getOpenDays().contains(day)) {
+            throw new InvalidPricingRequest("Activity not available on %s".formatted(day));
+        }
     }
 }

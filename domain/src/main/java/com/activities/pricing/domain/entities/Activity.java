@@ -1,9 +1,10 @@
 package com.activities.pricing.domain.entities;
 
 import java.time.DayOfWeek;
+import java.util.Objects;
 import java.util.Set;
 
-public class Activity {
+public abstract class Activity {
 
     private final String code;
     private final String title;
@@ -38,5 +39,25 @@ public class Activity {
 
     public double getChildPrice() {
         return childPrice;
+    }
+
+    public abstract ActivityType getType();
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Activity activity)) return false;
+
+        return Double.compare(adultPrice, activity.adultPrice) == 0 && Double.compare(childPrice, activity.childPrice) == 0 && Objects.equals(code, activity.code) && Objects.equals(title, activity.title) && Objects.equals(openDays, activity.openDays);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hashCode(code);
+        result = 31 * result + Objects.hashCode(title);
+        result = 31 * result + Objects.hashCode(openDays);
+        result = 31 * result + Double.hashCode(adultPrice);
+        result = 31 * result + Double.hashCode(childPrice);
+        return result;
     }
 }

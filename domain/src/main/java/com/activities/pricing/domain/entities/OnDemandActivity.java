@@ -8,4 +8,9 @@ public class OnDemandActivity extends Activity {
     public OnDemandActivity(String code, String title, Set<DayOfWeek> openDays, double adultPrice, double childPrice) {
         super(code, title, openDays, adultPrice, childPrice);
     }
+
+    @Override
+    public ActivityType getType() {
+        return ActivityType.ON_DEMAND;
+    }
 }

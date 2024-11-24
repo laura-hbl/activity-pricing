@@ -1,6 +1,7 @@
 package com.activities.pricing.domain.usecases;
 
 import com.activities.pricing.domain.dtos.PriceRequestDto;
+import com.activities.pricing.domain.dtos.PriceResponseDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public class ActivityPriceCalculator implements PriceCalculator {
         this.activityPriceCalculator = activityPriceCalculator;
     }
 
-    public double calculateActivityPrice(PriceRequestDto priceRequestDto) {
+    public PriceResponseDto calculateActivityPrice(PriceRequestDto priceRequestDto) {
 
         PriceCalculator calculator = activityPriceCalculator.getCalculator(priceRequestDto.getActivityType());
 

@@ -1,6 +1,7 @@
 package com.activities.pricing.domain.usecases;
 
 import com.activities.pricing.domain.dtos.PriceRequestDto;
+import com.activities.pricing.domain.dtos.PriceResponseDto;
 import com.activities.pricing.domain.entities.Activity;
 import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
 import com.activities.pricing.domain.repositories.ActivityRepository;
@@ -15,7 +16,7 @@ public class FreeSaleActivityPriceCalculator implements PriceCalculator {
         this.activityRepository = activityRepository;
     }
 
-    public double calculateActivityPrice(PriceRequestDto priceRequestDto) {
+    public PriceResponseDto calculateActivityPrice(PriceRequestDto priceRequestDto) {
 
         Activity activity = activityRepository.findByCode(priceRequestDto.getCode());
         DayOfWeek day = priceRequestDto.getDay();
@@ -39,6 +40,6 @@ public class FreeSaleActivityPriceCalculator implements PriceCalculator {
             price += (childPrice * (children - 2)) / 2;
         }
 
-        return price;
+        return new PriceResponseDto(price);
     }
 }

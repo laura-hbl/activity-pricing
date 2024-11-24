@@ -1,6 +1,7 @@
 package unit;
 
 import com.activities.pricing.domain.dtos.PriceRequestDto;
+import com.activities.pricing.domain.dtos.PriceResponseDto;
 import com.activities.pricing.domain.entities.ActivityType;
 import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
 import com.activities.pricing.domain.repositories.ActivityRepository;
@@ -36,9 +37,9 @@ public class CalculatePriceTest {
         PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.MONDAY,
                 ActivityType.FREE_SALE, 2, 1);
 
-        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
+        PriceResponseDto price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
-        assertEquals(50.0, price);
+        assertEquals(50.0, price.getPrice());
     }
 
     @Test
@@ -47,9 +48,9 @@ public class CalculatePriceTest {
         PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.WEDNESDAY,
                 ActivityType.FREE_SALE, 2, 4);
 
-        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
+        PriceResponseDto price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
-        assertEquals(70.0, price);
+        assertEquals(70.0, price.getPrice());
     }
 
     @Test
@@ -70,9 +71,9 @@ public class CalculatePriceTest {
         PriceRequestDto priceRequestDto = new PriceRequestDto(ON_DEMAND_CODE, DayOfWeek.SATURDAY,
                 ActivityType.ON_DEMAND, 2, 2);
 
-        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
+        PriceResponseDto price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
-        assertEquals(40.0, price);
+        assertEquals(40.0, price.getPrice());
     }
 
     @Test

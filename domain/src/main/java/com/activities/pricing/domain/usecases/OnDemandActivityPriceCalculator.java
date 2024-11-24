@@ -1,14 +1,31 @@
 package com.activities.pricing.domain.usecases;
 
+import com.activities.pricing.domain.dtos.PriceRequestDto;
 import com.activities.pricing.domain.entities.Activity;
-import com.activities.pricing.domain.exception.InvalidPricingRequest;
+import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
+import com.activities.pricing.domain.repositories.ActivityRepository;
 
 import java.time.DayOfWeek;
 
 public class OnDemandActivityPriceCalculator implements PriceCalculator {
 
-    public double calculateActivityPrice(Activity activity, int adults, int children, DayOfWeek day) {
+    private final ActivityRepository activityRepository;
 
+    public OnDemandActivityPriceCalculator(ActivityRepository activityRepository) {
+        this.activityRepository = activityRepository;
+    }
+
+    public double calculateActivityPrice(PriceRequestDto priceRequestDto) {
+
+        Activity activity = activityRepository.findByCode(priceRequestDto.getCode());
+        DayOfWeek day = priceRequestDto.getDay();
+
+        if (!activity.getOpenDays().contains(day)) {
+            throw new InvalidPricingRequest(String.format("On demand activity '%s' is not available on %s.", activity.getTitle(), day));
+        }
+
+        int adults = priceRequestDto.getNumberOfAdults();
+        int children = priceRequestDto.getNumberOfChildren();
         int total = adults + children;
 
         if (total > 4) {

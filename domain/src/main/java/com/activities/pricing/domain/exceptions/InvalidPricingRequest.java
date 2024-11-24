@@ -1,4 +1,4 @@
-package com.activities.pricing.domain.exception;
+package com.activities.pricing.domain.exceptions;
 
 public class InvalidPricingRequest extends RuntimeException {
 

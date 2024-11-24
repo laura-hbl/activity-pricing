@@ -1,47 +1,53 @@
 package unit;
 
-import com.activities.pricing.domain.entities.Activity;
-import com.activities.pricing.domain.entities.FreeSaleActivity;
-import com.activities.pricing.domain.entities.OnDemandActivity;
+import com.activities.pricing.domain.dtos.PriceRequestDto;
+import com.activities.pricing.domain.entities.ActivityType;
+import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
+import com.activities.pricing.domain.repositories.ActivityRepository;
+import com.activities.pricing.domain.repositories.DefaultActivityRepository;
+import com.activities.pricing.domain.usecases.ActivityPriceCalculator;
 import com.activities.pricing.domain.usecases.ActivityPriceCalculatorManager;
-import com.activities.pricing.domain.usecases.CalculateActivityPrice;
-import com.activities.pricing.domain.exception.InvalidPricingRequest;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.time.DayOfWeek;
-import java.util.HashSet;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CalculatePriceTest {
 
-    CalculateActivityPrice calculateActivityPrice = new CalculateActivityPrice(new ActivityPriceCalculatorManager());
+    public static final String INVALID_CODE = "00000";
+    public static final String FREE_SALE_CODE = "00001";
+    public static final String ON_DEMAND_CODE = "00002";
 
-    private final Activity freeSaleActivity = new FreeSaleActivity("45221", "Museum",
-            new HashSet<>(List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
-                    DayOfWeek.FRIDAY)), 20, 10);
+    private static ActivityPriceCalculator activityPriceCalculator;
 
-    private final Activity onDemandActivity = new OnDemandActivity("13121", "Excursion",
-            new HashSet<>(List.of(DayOfWeek.SATURDAY, DayOfWeek.SUNDAY)),
-            10, 10);
-
+    @BeforeAll
+    static void beforeAll() {
+        ActivityRepository activityRepository = new DefaultActivityRepository();
+        ActivityPriceCalculatorManager priceCalculatorManager = new ActivityPriceCalculatorManager(activityRepository);
+        activityPriceCalculator = new ActivityPriceCalculator(priceCalculatorManager);
+    }
 
     @Test
     public void shouldReturnCorrectPriceForFreeSaleActivityOnValidDay() {
 
-        double price = calculateActivityPrice.calculateActivityPrice(freeSaleActivity, 2, 1,
-                DayOfWeek.MONDAY);
+        PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.MONDAY,
+                ActivityType.FREE_SALE, 2, 1);
+
+        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
         assertEquals(50.0, price);
     }
 
     @Test
-    public void shouldReducePriceForThirdOrMoreChildren() {
+    public void shouldReduceFreeSaleActivityPriceForThirdOrMoreChildren() {
 
-        double price = calculateActivityPrice.calculateActivityPrice(freeSaleActivity, 2, 4,
-                DayOfWeek.WEDNESDAY);
+        PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.WEDNESDAY,
+                ActivityType.FREE_SALE, 2, 4);
+
+        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
         assertEquals(70.0, price);
     }
@@ -49,17 +55,22 @@ public class CalculatePriceTest {
     @Test
     public void shouldThrowExceptionForFreeSaleActivityForNonOpenDay() {
 
-        var exception = assertThrows(InvalidPricingRequest.class, () ->
-                calculateActivityPrice.calculateActivityPrice(freeSaleActivity, 2, 2, DayOfWeek.SUNDAY));
+        PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.SUNDAY,
+                ActivityType.FREE_SALE, 2, 2);
 
-        assertEquals(exception.getMessage(), "Activity not available on SUNDAY");
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
+
+        assertEquals("Free sale activity 'Museum' is not available on SUNDAY.", exception.getMessage());
     }
 
     @Test
     public void shouldReturnCorrectPriceForOnDemandActivityOnValidDay() {
 
-        double price = calculateActivityPrice.calculateActivityPrice(onDemandActivity, 2, 2,
-                DayOfWeek.SATURDAY);
+        PriceRequestDto priceRequestDto = new PriceRequestDto(ON_DEMAND_CODE, DayOfWeek.SATURDAY,
+                ActivityType.ON_DEMAND, 2, 2);
+
+        double price = activityPriceCalculator.calculateActivityPrice(priceRequestDto);
 
         assertEquals(40.0, price);
     }
@@ -67,29 +78,36 @@ public class CalculatePriceTest {
     @Test
     public void shouldThrowExceptionForOnDemandActivityForNonOpenDay() {
 
-        var exception = assertThrows(InvalidPricingRequest.class, () ->
-                calculateActivityPrice.calculateActivityPrice(onDemandActivity, 2, 2, DayOfWeek.MONDAY));
+        PriceRequestDto priceRequestDto = new PriceRequestDto(ON_DEMAND_CODE, DayOfWeek.MONDAY,
+                ActivityType.ON_DEMAND, 2, 2);
 
-        assertEquals(exception.getMessage(), "Activity not available on MONDAY");
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
+
+        assertEquals("On demand activity 'Excursion' is not available on MONDAY.", exception.getMessage());
     }
 
     @Test
     public void shouldThrowExceptionForOnDemandActivityWhenLimitExceeded() {
 
+        PriceRequestDto priceRequestDto = new PriceRequestDto(ON_DEMAND_CODE, DayOfWeek.SUNDAY,
+                ActivityType.ON_DEMAND, 3, 2);
+
         var exception = assertThrows(InvalidPricingRequest.class, () ->
-                calculateActivityPrice.calculateActivityPrice(onDemandActivity, 3, 2, DayOfWeek.SUNDAY));
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
 
         assertEquals(exception.getMessage(), "Places are limit to 4");
     }
 
     @Test
     public void shouldThrowExceptionForInvalidActivityCode() {
-        Activity invalidActivity = new FreeSaleActivity("99999", "Invalid", new HashSet<>(), 20, 10);
+
+        PriceRequestDto priceRequestDto = new PriceRequestDto(INVALID_CODE, DayOfWeek.MONDAY,
+                ActivityType.ON_DEMAND, 2, 2);
 
         var exception = assertThrows(InvalidPricingRequest.class, () ->
-                calculateActivityPrice.calculateActivityPrice(invalidActivity, 2, 2, DayOfWeek.MONDAY));
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
 
-        assertEquals(exception.getMessage(), "No calculator found for code: 99999");
+        assertEquals("No activity found for code: 00000", exception.getMessage());
     }
-
 }

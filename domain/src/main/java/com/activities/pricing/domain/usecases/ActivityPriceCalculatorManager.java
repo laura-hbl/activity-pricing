@@ -1,23 +1,26 @@
 package com.activities.pricing.domain.usecases;
 
+import com.activities.pricing.domain.entities.ActivityType;
+import com.activities.pricing.domain.repositories.ActivityRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import java.util.Map;
 
+@Component
 public class ActivityPriceCalculatorManager {
 
-    private static String FREE_SALE_CODE = "45221";
-    private static String ON_DEMAND_CODE = "13121";
+    private final Map<ActivityType, PriceCalculator> calculators;
 
-    public static Map<String, PriceCalculator> calculators;
-
-    public ActivityPriceCalculatorManager() {
+    @Autowired
+    public ActivityPriceCalculatorManager(ActivityRepository activityRepository) {
         calculators = Map.of(
-                ON_DEMAND_CODE, new OnDemandActivityPriceCalculator(),
-                FREE_SALE_CODE, new FreeSaleActivityPriceCalculator()
+                ActivityType.ON_DEMAND, new OnDemandActivityPriceCalculator(activityRepository),
+                ActivityType.FREE_SALE, new FreeSaleActivityPriceCalculator(activityRepository)
         );
     }
 
-    public PriceCalculator getCalculator(String code) {
-
-        return calculators.get(code);
+    public PriceCalculator getCalculator(ActivityType activityType) {
+        return calculators.get(activityType);
     }
 }

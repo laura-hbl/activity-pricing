@@ -62,7 +62,7 @@ public class CalculatePriceTest {
         var exception = assertThrows(InvalidPricingRequest.class, () ->
                 activityPriceCalculator.calculateActivityPrice(priceRequestDto));
 
-        assertEquals("Free sale activity 'Museum' is not available on SUNDAY.", exception.getMessage());
+        assertEquals("Activity 'Museum' is not available on SUNDAY.", exception.getMessage());
     }
 
     @Test
@@ -85,7 +85,7 @@ public class CalculatePriceTest {
         var exception = assertThrows(InvalidPricingRequest.class, () ->
                 activityPriceCalculator.calculateActivityPrice(priceRequestDto));
 
-        assertEquals("On demand activity 'Excursion' is not available on MONDAY.", exception.getMessage());
+        assertEquals("Activity 'Excursion' is not available on MONDAY.", exception.getMessage());
     }
 
     @Test

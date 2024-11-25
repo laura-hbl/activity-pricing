@@ -6,7 +6,8 @@ import com.activities.pricing.domain.entities.Activity;
 import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
 import com.activities.pricing.domain.repositories.ActivityRepository;
 
-import java.time.DayOfWeek;
+import static com.activities.pricing.domain.util.ActivityRulesValidator.validateOpenDay;
+import static com.activities.pricing.domain.util.ActivityRulesValidator.validateParticipantNumbers;
 
 public class OnDemandActivityPriceCalculator implements PriceCalculator {
 
@@ -19,25 +20,17 @@ public class OnDemandActivityPriceCalculator implements PriceCalculator {
     public PriceResponseDto calculateActivityPrice(PriceRequestDto priceRequestDto) {
 
         Activity activity = activityRepository.findByCode(priceRequestDto.getCode());
-        DayOfWeek day = priceRequestDto.getDay();
-
-        if (!activity.getOpenDays().contains(day)) {
-            throw new InvalidPricingRequest(String.format("On demand activity '%s' is not available on %s.", activity.getTitle(), day));
-        }
+        validateOpenDay(activity, priceRequestDto.getDay());
+        validateParticipantNumbers(priceRequestDto.getNumberOfAdults(), priceRequestDto.getNumberOfChildren());
 
         int adults = priceRequestDto.getNumberOfAdults();
         int children = priceRequestDto.getNumberOfChildren();
 
-        if (adults < 0 || children < 0) {
-            throw new InvalidPricingRequest("The number of participants cannot be negative.");
-        }
-        int total = adults + children;
-        if (total > 4) {
+        if (adults + children > 4) {
             throw new InvalidPricingRequest("Places are limit to 4");
         }
 
         double price = (adults * activity.getAdultPrice()) + (children * activity.getChildPrice());
-
         return new PriceResponseDto(price);
     }
 }

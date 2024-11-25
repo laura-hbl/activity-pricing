@@ -101,7 +101,7 @@ public class CalculatePriceTest {
     }
 
     @Test
-    public void shouldThrowExceptionForInvalidActivityCode() {
+    public void shouldThrowExceptionWhenActivityCodeIsInvalid() {
 
         PriceRequestDto priceRequestDto = new PriceRequestDto(INVALID_CODE, DayOfWeek.MONDAY,
                 ActivityType.ON_DEMAND, 2, 2);
@@ -110,5 +110,29 @@ public class CalculatePriceTest {
                 activityPriceCalculator.calculateActivityPrice(priceRequestDto));
 
         assertEquals("No activity found for code: 00000", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowExceptionForOnDemandWhenParticipantsAreNegative() {
+
+        PriceRequestDto priceRequestDto = new PriceRequestDto(ON_DEMAND_CODE, DayOfWeek.SUNDAY,
+                ActivityType.ON_DEMAND, -2, 2);
+
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
+
+        assertEquals("The number of participants cannot be negative.", exception.getMessage());
+    }
+
+    @Test
+    public void shouldThrowExceptionFreeSaleWhenParticipantsAreNegative() {
+
+        PriceRequestDto priceRequestDto = new PriceRequestDto(FREE_SALE_CODE, DayOfWeek.MONDAY,
+                ActivityType.FREE_SALE, -2, -4);
+
+        var exception = assertThrows(InvalidPricingRequest.class, () ->
+                activityPriceCalculator.calculateActivityPrice(priceRequestDto));
+
+        assertEquals("The number of participants cannot be negative.", exception.getMessage());
     }
 }

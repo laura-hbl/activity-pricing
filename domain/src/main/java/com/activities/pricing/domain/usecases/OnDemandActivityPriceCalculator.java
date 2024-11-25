@@ -27,8 +27,11 @@ public class OnDemandActivityPriceCalculator implements PriceCalculator {
 
         int adults = priceRequestDto.getNumberOfAdults();
         int children = priceRequestDto.getNumberOfChildren();
-        int total = adults + children;
 
+        if (adults < 0 || children < 0) {
+            throw new InvalidPricingRequest("The number of participants cannot be negative.");
+        }
+        int total = adults + children;
         if (total > 4) {
             throw new InvalidPricingRequest("Places are limit to 4");
         }

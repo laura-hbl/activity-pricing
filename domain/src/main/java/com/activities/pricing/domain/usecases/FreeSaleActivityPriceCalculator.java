@@ -25,10 +25,16 @@ public class FreeSaleActivityPriceCalculator implements PriceCalculator {
             throw new InvalidPricingRequest(String.format("Free sale activity '%s' is not available on %s.", activity.getTitle(), day));
         }
 
-        double price = activity.getAdultPrice() * priceRequestDto.getNumberOfAdults();
-
         int children = priceRequestDto.getNumberOfChildren();
+        int adults = priceRequestDto.getNumberOfAdults();
+
+        if (adults < 0 || children < 0) {
+            throw new InvalidPricingRequest("The number of participants cannot be negative.");
+        }
+
+        double price = activity.getAdultPrice() * adults;
         double childPrice = activity.getChildPrice();
+
 
         if (children < 2) {
             // If less than 2, then just child number * price

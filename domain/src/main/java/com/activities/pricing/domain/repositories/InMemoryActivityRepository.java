@@ -13,11 +13,11 @@ import java.util.Optional;
 
 // Impl can be in an infrastructure module but adding it here for this simple project
 // A database could also replace this with a @Repository
-public class DefaultActivityRepository implements ActivityRepository {
+public class InMemoryActivityRepository implements ActivityRepository {
 
     private final Map<String, Activity> activities;
 
-    public DefaultActivityRepository() {
+    public InMemoryActivityRepository() {
         Activity freeSaleActivity = new FreeSaleActivity("00001", "Museum",
                 new HashSet<>(List.of(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY,
                         DayOfWeek.FRIDAY)), 20, 10);

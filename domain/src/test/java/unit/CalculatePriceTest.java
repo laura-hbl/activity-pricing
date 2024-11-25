@@ -5,7 +5,7 @@ import com.activities.pricing.domain.dtos.PriceResponseDto;
 import com.activities.pricing.domain.entities.ActivityType;
 import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
 import com.activities.pricing.domain.repositories.ActivityRepository;
-import com.activities.pricing.domain.repositories.DefaultActivityRepository;
+import com.activities.pricing.domain.repositories.InMemoryActivityRepository;
 import com.activities.pricing.domain.usecases.ActivityPriceCalculator;
 import com.activities.pricing.domain.usecases.ActivityPriceCalculatorManager;
 import org.junit.jupiter.api.BeforeAll;
@@ -26,7 +26,7 @@ public class CalculatePriceTest {
 
     @BeforeAll
     static void beforeAll() {
-        ActivityRepository activityRepository = new DefaultActivityRepository();
+        ActivityRepository activityRepository = new InMemoryActivityRepository();
         ActivityPriceCalculatorManager priceCalculatorManager = new ActivityPriceCalculatorManager(activityRepository);
         activityPriceCalculator = new ActivityPriceCalculator(priceCalculatorManager);
     }

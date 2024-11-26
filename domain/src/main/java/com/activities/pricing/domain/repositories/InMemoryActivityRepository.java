@@ -4,6 +4,7 @@ import com.activities.pricing.domain.entities.Activity;
 import com.activities.pricing.domain.entities.FreeSaleActivity;
 import com.activities.pricing.domain.entities.OnDemandActivity;
 import com.activities.pricing.domain.exceptions.InvalidPricingRequest;
+import org.springframework.stereotype.Repository;
 
 import java.time.DayOfWeek;
 import java.util.HashSet;
@@ -11,8 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-// Impl can be in an infrastructure module but adding it here for this simple project
-// A database could also replace this with a @Repository
+// Impl could be in an infrastructure module but adding it here for this simple project
+// A database could also replace this with a @Repository + DB configuration
+@Repository
 public class InMemoryActivityRepository implements ActivityRepository {
 
     private final Map<String, Activity> activities;

@@ -20,11 +20,12 @@ public class OnDemandActivityPriceCalculator implements PriceCalculator {
     public PriceResponseDto calculateActivityPrice(PriceRequestDto priceRequestDto) {
 
         Activity activity = activityRepository.findByCode(priceRequestDto.getCode());
-        validateOpenDay(activity, priceRequestDto.getDay());
-        validateParticipantNumbers(priceRequestDto.getNumberOfAdults(), priceRequestDto.getNumberOfChildren());
 
         int adults = priceRequestDto.getNumberOfAdults();
         int children = priceRequestDto.getNumberOfChildren();
+
+        validateOpenDay(activity, priceRequestDto.getDay());
+        validateParticipantNumbers(adults, children);
 
         if (adults + children > 4) {
             throw new InvalidPricingRequest("Places are limit to 4");

@@ -19,11 +19,12 @@ public class FreeSaleActivityPriceCalculator implements PriceCalculator {
     public PriceResponseDto calculateActivityPrice(PriceRequestDto priceRequestDto) {
 
         Activity activity = activityRepository.findByCode(priceRequestDto.getCode());
-        validateOpenDay(activity, priceRequestDto.getDay());
-        validateParticipantNumbers(priceRequestDto.getNumberOfAdults(), priceRequestDto.getNumberOfChildren());
 
         int children = priceRequestDto.getNumberOfChildren();
         int adults = priceRequestDto.getNumberOfAdults();
+
+        validateOpenDay(activity, priceRequestDto.getDay());
+        validateParticipantNumbers(adults, children);
 
         double price = activity.getAdultPrice() * adults;
         double childPrice = activity.getChildPrice();
